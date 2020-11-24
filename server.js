@@ -153,7 +153,7 @@ app.post("/resetpassword", cors(), async (req, res) => {
                 html: '<p>Hello ' + `${email.split('@')[0]}` + '</p><p>Your password reset OTP is : <br> <p style="color:green;font-size:150%;">' + `${token}` + '</p></p>'
             };
 
-            transporter.sendMail(mailOptions, function (error, info) {
+            transporter.sendMail(mailOptions,cors(), function (error, info) {
                 if (error) {
                     console.log(error);
                 } else {
