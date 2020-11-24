@@ -6,7 +6,7 @@
 
 *A demo Server connected to [Password-Reset-Flow-UI](https://password-reset-flow-ui.netlify.app/) for User authentication and Password reset flow.*
 
-### Languages and Tools::
+### Languages and Tools used:
 
 <code><img height="25" src="https://github.com/devicons/devicon/blob/master/icons/javascript/javascript-original.svg" alt="javascript"></code>
 <code><img height="25" src="https://github.com/devicons/devicon/blob/master/icons/nodejs/nodejs-original.svg" alt="nodejs"></code>
