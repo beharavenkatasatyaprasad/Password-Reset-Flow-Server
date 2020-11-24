@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express(); //initialize express
 const bodyParser = require('body-parser'); //body parsing middleware
-
 const bcrypt = require('bcryptjs'); //library to hash passwords
 const saltRounds = 10; //cost factor (controls how much time is needed to calculate a single BCrypt hash)
 const uid = require('rand-token').uid; // random token generator
@@ -14,6 +13,8 @@ const {
     reset
 } = require('nodemon');
 app.use(bodyParser.json());
+
+
 //connect to the server and the database 
 const mongoClient = mongodb.MongoClient;
 const url = "mongodb+srv://satyabehara:ftjrbtc9S1@cluster0.u3j3r.mongodb.net/rightclick?retryWrites=true&w=majority";
