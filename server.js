@@ -12,7 +12,7 @@ const cors = require('cors');
 const {
     reset
 } = require('nodemon');
-
+app.options('*', cors())
 
 mongoClient.connect(url, {
     useNewUrlParser: true,
@@ -23,7 +23,7 @@ mongoClient.connect(url, {
     db.close();
 });
 
-app.options('*', cors())
+
 
 
 app.use(bodyParser.json());
@@ -138,6 +138,7 @@ app.post("/resetpassword", cors(), async (req, res) => {
                     password: token
                 }
             });
+            res.sendStatus(202)
             var transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
@@ -153,12 +154,13 @@ app.post("/resetpassword", cors(), async (req, res) => {
                 html: '<p>Hello ' + `${email.split('@')[0]}` + '</p><p>Your password reset OTP is : <br> <p style="color:green;font-size:150%;">' + `${token}` + '</p></p>'
             };
 
-            transporter.sendMail(mailOptions,cors(), function (error, info) {
+            transporter.sendMail(mailOptions, function (error, info) {
                 if (error) {
                     console.log(error);
                 } else {
+                    
                     console.log('Email sent: ' + info.response);
-                    res.sendStatus(202)
+                   
                 }
             });
         }
