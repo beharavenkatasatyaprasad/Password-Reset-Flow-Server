@@ -138,7 +138,6 @@ app.post("/resetpassword", cors(), async (req, res) => {
                     password: token
                 }
             });
-            res.sendStatus(202)
             var transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
@@ -158,7 +157,7 @@ app.post("/resetpassword", cors(), async (req, res) => {
                 if (error) {
                     console.log(error);
                 } else {
-                    
+                    res.sendStatus(202)
                     console.log('Email sent: ' + info.response);
                    
                 }
