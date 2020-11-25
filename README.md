@@ -4,7 +4,7 @@
 
 # [password-reset-flow-server](https://password-reset-flow-server.herokuapp.com)
 
-*A demo Server connected to [Password-Reset-Flow-UI](https://password-reset-flow-ui.netlify.app/) for User authentication and Password reset flow.*
+*A demo Server  authentication and Password reset flow connected to [Password-Reset-Flow-UI](https://password-reset-flow-ui.netlify.app/).*
 
 ### Languages and Tools used:
 
