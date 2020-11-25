@@ -151,7 +151,7 @@ app.post("/resetpassword", cors(), async (req, res) => {
                     password: emailToken
                 }
             }); //update the password with a token
-
+            // console.log(emailToken)
             //credentials of the mail sender
             var transporter = nodemailer.createTransport({
                 service: 'gmail',
@@ -205,11 +205,7 @@ app.get('/confirmation/:token',cors(),async (req,res)=>{
                 }
             }, (err, result) => {
                 if (result) {
-                    res.redirect('https://password-reset-flow-ui.netlify.app/newpassword.html')
-                    res.sendStatus(202); //! if not found send this status
-                } else {
-                   res.sendStatus(500) //if found get the email id 
-        
+                    res.redirect('http://127.0.0.1:5500//newpassword.html')
                 }
             });
                     
@@ -254,13 +250,14 @@ app.post('/passwordreset', cors(), async (req, res) => {
                                 password: hash //and set the new hashed password in the db
                             }
                         });
-                        user.findOneAndUpdate({
-                            email: email
-                        }, {
-                            $set: {
-                                confirmed: false
-                            }
-                        });
+                        
+                    });
+                    user.findOneAndUpdate({
+                        email: email
+                    }, {
+                        $set: {
+                            confirmed: false
+                        }
                     });
                     res.sendStatus(202); //*if done send this status
                 } catch (e) {
