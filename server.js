@@ -167,7 +167,7 @@ app.post("/resetpassword", cors(), async (req, res) => {
                 from: '"Hello buddy 👻" <noreply@satyaprasadbehara.com>',
                 to: `${email}`,
                 subject: 'Password Reset Link',
-                html: `Hello ${name} , Here's your password reset link: <br> <a style="color:green" href="${url}">${url}</a> <br> Link expires in an hour...`
+                html: `Hello ${name} , Here's your password reset link: <br> <a style="color:green" href="${url}">Click Here To Reset</a> <br> Link expires in an hour...`
             };
 
             //Send the mail
