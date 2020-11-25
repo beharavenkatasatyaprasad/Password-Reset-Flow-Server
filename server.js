@@ -162,7 +162,7 @@ app.post("/resetpassword", cors(), async (req, res) => {
             });
             let url =  `https://password-reset-flow-server.herokuapp.com/confirmation/${emailToken}`
             let name = `${email.split('@')[0]}`
-            //email template for sending otp
+            //email template for sending token
             var mailOptions = {
                 from: '"Hello buddy 👻" <noreply@satyaprasadbehara.com>',
                 to: `${email}`,
@@ -225,7 +225,7 @@ app.get('/confirmation/:token',cors(),async (req,res)=>{
 
 
 
-//Endpoint to verify the otp and senting new password
+//Endpoint to verify the token and senting new password
 app.post('/passwordreset', cors(), async (req, res) => {
     const {
         password,
@@ -237,13 +237,13 @@ app.post('/passwordreset', cors(), async (req, res) => {
     }); //connect to db
     let db = client.db("rightclick"); //db name
     let user = db.collection("users"); //collection name
-    user.findOne({ //find if the token(otp) exists in the collection
+    user.findOne({ 
         email: email
     }, (err, User) => {
         if (User == null) {
             res.sendStatus(500); //! if not found send this status
         } else {
-            let token = User.confirmed //if found get the email id 
+            let token = User.confirmed //find if the token exists in the collection
             if(token == true){
                 try {
                     bcrypt.hash(password, saltRounds, function (err, hash) { //hash the new password
