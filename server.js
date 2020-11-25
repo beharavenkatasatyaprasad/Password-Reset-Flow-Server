@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express(); //initialize express
 const bodyParser = require('body-parser'); //body parsing middleware
+var jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs'); //library to hash passwords
 const saltRounds = 10; //cost factor (controls how much time is needed to calculate a single BCrypt hash)
 const uid = require('rand-token').uid; // random token generator
@@ -137,12 +138,17 @@ app.post("/resetpassword", cors(), async (req, res) => {
         if (users == null) {
             res.sendStatus(400) //! if not found send this status
         } else { //if found 
-            let token = uid(5);
+            // let token = uid(5);
+            let emailToken =  jwt.sign({
+                exp: Math.floor(Date.now() / 1000) + (60 * 60),
+                email: email
+              }, 'secret');
+           
             user.findOneAndUpdate({
                 email: email
             }, {
                 $set: {
-                    password: token
+                    password: emailToken
                 }
             }); //update the password with a token
 
@@ -154,13 +160,14 @@ app.post("/resetpassword", cors(), async (req, res) => {
                     pass: 'Prasad@444456'
                 }
             });
-
+            let url = `http://localhost:3000/confirmation/${emailToken}`
+            let name = `${email.split('@')[0]}`
             //email template for sending otp
             var mailOptions = {
                 from: '"Hello buddy 👻" <noreply@satyaprasadbehara.com>',
                 to: `${email}`,
                 subject: 'Password Reset Link',
-                html: '<p>Hello ' + `${email.split('@')[0]}` + '</p><p>Your password reset OTP is : <br> <p style="color:green;font-size:150%;">' + `${token}` + '</p></p>'
+                html: `Hello ${name} , Your click on the link to reset your Password: <br> <a style="color:green" href="${url}">${url}</a> <br> Link expires in an hour...`
             };
 
             //Send the mail
@@ -178,12 +185,52 @@ app.post("/resetpassword", cors(), async (req, res) => {
     })
 });
 
+
+
+app.get('/confirmation/:token',cors(),async (req,res)=>{
+    const token = req.params.token
+    jwt.verify(token, 'secret',async function(err, decoded) {
+        if(decoded){
+            let client = await mongoClient.connect(url, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true
+            });
+            let db = client.db("rightclick"); //db name
+            let user = db.collection("users"); //collection name
+            user.findOneAndUpdate({
+                email: decoded.email
+            }, {
+                $set: {
+                    confirmed: true //and set the new hashed password in the db
+                }
+            }, (err, result) => {
+                if (result) {
+                    res.redirect('https://password-reset-flow-ui.netlify.app/newpassword.html')
+                    res.sendStatus(202); //! if not found send this status
+                } else {
+                   res.sendStatus(500) //if found get the email id 
+        
+                }
+            });
+                    
+
+        }
+        if(err){
+            res.send(err)
+        }
+      });
+    
+
+})
+
+
+
 //Endpoint to verify the otp and senting new password
-app.post('/verification', cors(), async (req, res) => {
+app.post('/passwordreset', cors(), async (req, res) => {
     const {
-        token,
-        password
-    } = req.body; //token(otp) & newpassword from client
+        password,
+        email
+    } = req.body; //email & newpassword from client
     let client = await mongoClient.connect(url, {
         useNewUrlParser: true,
         useUnifiedTopology: true
@@ -191,27 +238,35 @@ app.post('/verification', cors(), async (req, res) => {
     let db = client.db("rightclick"); //db name
     let user = db.collection("users"); //collection name
     user.findOne({ //find if the token(otp) exists in the collection
-        password: token
+        email: email
     }, (err, User) => {
         if (User == null) {
             res.sendStatus(500); //! if not found send this status
         } else {
-            let email = User.email //if found get the email id 
-            try {
-                bcrypt.hash(password, saltRounds, function (err, hash) { //hash the new password
-                    user.findOneAndUpdate({
-                        email: email
-                    }, {
-                        $set: {
-                            password: hash //and set the new hashed password in the db
-                        }
+            let token = User.confirmed //if found get the email id 
+            if(token == true){
+                try {
+                    bcrypt.hash(password, saltRounds, function (err, hash) { //hash the new password
+                        user.findOneAndUpdate({
+                            email: email
+                        }, {
+                            $set: {
+                                password: hash //and set the new hashed password in the db
+                            }
+                        },);
+                        user.findOneAndUpdate({
+                            email: email
+                        }, {
+                            $set: {
+                                confirmed: null
+                            }
+                        },);
                     });
-                });
-                res.sendStatus(202); //*if done send this status
-            } catch (e) {
-                res.sendStatus(400); //! if any error send this status
+                    res.sendStatus(202); //*if done send this status
+                } catch (e) {
+                    res.sendStatus(400); //! if any error send this status
+                }
             }
-
         }
     })
 
