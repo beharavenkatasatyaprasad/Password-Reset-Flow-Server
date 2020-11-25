@@ -156,8 +156,8 @@ app.post("/resetpassword", cors(), async (req, res) => {
             var transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
-                    user: 'ftjrbtc9s1@gmail.com',
-                    pass: 'Prasad@444456'
+                    user: 'mockmail4me@gmail.com',
+                    pass: 'ekkreipwgzxtnizy'
                 }
             });
             let url =  `https://password-reset-flow-server.herokuapp.com/confirmation/${emailToken}`
