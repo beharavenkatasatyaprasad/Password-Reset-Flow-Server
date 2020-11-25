@@ -186,7 +186,7 @@ app.post("/resetpassword", cors(), async (req, res) => {
 });
 
 
-
+//End point to verify the token
 app.get('/confirmation/:token',cors(),async (req,res)=>{
     const token = req.params.token
     jwt.verify(token, 'secret',async function(err, decoded) {
@@ -205,12 +205,12 @@ app.get('/confirmation/:token',cors(),async (req,res)=>{
                 }
             }, (err, result) => {
                 if (result) {
-                    res.redirect('https://password-reset-flow-ui.netlify.app/newpassword.html')
+                    res.redirect('https://password-reset-flow-ui.netlify.app/newpassword.html');
                 }
             });
         }
         if(err){
-            res.send(err)
+            res.sendStatus(401);//if the token expired send this status
         }
       });
     
