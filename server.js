@@ -160,7 +160,7 @@ app.post("/resetpassword", cors(), async (req, res) => {
                     pass: 'Prasad@444456'
                 }
             });
-            let url = `http://localhost:3000/confirmation/${emailToken}`
+            let url =  `https://password-reset-flow-server.herokuapp.com/confirmation/${emailToken}`
             let name = `${email.split('@')[0]}`
             //email template for sending otp
             var mailOptions = {
