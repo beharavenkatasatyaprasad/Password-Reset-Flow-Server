@@ -151,8 +151,8 @@ app.post("/resetpassword", cors(), async (req, res) => {
                     password: emailToken
                 }
             }); //update the password with a token
-            // console.log(emailToken)
-            //credentials of the mail sender
+            
+            //credentials for mail transport
             var transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
@@ -205,11 +205,9 @@ app.get('/confirmation/:token',cors(),async (req,res)=>{
                 }
             }, (err, result) => {
                 if (result) {
-                    res.redirect('http://127.0.0.1:5500//newpassword.html')
+                    res.redirect('https://password-reset-flow-ui.netlify.app/newpassword.html')
                 }
             });
-                    
-
         }
         if(err){
             res.send(err)
