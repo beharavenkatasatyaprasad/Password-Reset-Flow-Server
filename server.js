@@ -253,14 +253,15 @@ app.post('/passwordreset', cors(), async (req, res) => {
                             $set: {
                                 password: hash //and set the new hashed password in the db
                             }
-                        },);
-                        user.findOneAndUpdate({
-                            email: email
-                        }, {
-                            $set: {
-                                confirmed: false
-                            }
-                        },);
+                        });
+                       
+                    });
+                   await user.findOneAndUpdate({
+                        email: email
+                    }, {
+                        $set: {
+                            confirmed: false
+                        }
                     });
                     res.sendStatus(202); //*if done send this status
                 } catch (e) {
