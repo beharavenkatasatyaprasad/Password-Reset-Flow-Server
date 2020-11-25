@@ -21,6 +21,7 @@
 - mongodb
 - nodemailer
 - rand-token
+- jsonwebtoken
 
 
 ##### Links
