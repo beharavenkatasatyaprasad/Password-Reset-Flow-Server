@@ -258,7 +258,7 @@ app.post('/passwordreset', cors(), async (req, res) => {
                             email: email
                         }, {
                             $set: {
-                                confirmed: null
+                                confirmed: false
                             }
                         },);
                     });
