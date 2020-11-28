@@ -17,6 +17,14 @@ const {
 } = require('nodemon');
 app.use(bodyParser.json());
 
+//credentials for mail transport
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'mockmail4me@gmail.com',
+        pass: 'ekkreipwgzxtnizy'
+    }
+});
 
 //connect to the server and the database 
 const mongoClient = mongodb.MongoClient;
@@ -37,29 +45,6 @@ app.get("/", cors(), (req, res) => {
     res.send("Hello From Server");
 });
 
-//End point find if the email is already taken.. 
-app.post('/findPossibleDuplications', cors(), async(req, res) => {
-    let {
-        email
-    } = req.body //email from client
-    let client = await mongoClient.connect(url, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    }); //connect to db
-    let db = client.db("rightclick"); //db name
-    let user = db.collection("users"); //collection name
-    user.findOne({
-        email: email
-    }, (err, result) => { //find if the email is already exist in the collection
-        if (result == null) {
-            res.sendStatus(202) //*if same email not found send this status
-        } else {
-            res.sendStatus(400) // ! if found send this status
-        }
-
-    })
-
-})
 
 //Endpoint to register the user
 app.post('/register', cors(), async(req, res) => {
@@ -85,7 +70,7 @@ app.post('/register', cors(), async(req, res) => {
                 return res.json({ type_: "success", message: 'Registration successful...' });
             });
         } else {
-            return res.json({ type_: "warning", message: 'Email already exists !!!' });
+            return res.json({ type_: "warning", message: "User already exists with " + email });
         }
     })
 })
@@ -107,13 +92,14 @@ app.post("/login", cors(), async(req, res) => {
         email: email
     }, (err, users) => {
         if (users == null) { //find if the user with entered email exists or not
-            res.sendStatus(400); //! if not found send this status
+            return res.json({ type_: "warning", message: 'No user found with ' + email + ' !!!' }); //! if not found send this status
         } else {
             bcrypt.compare(password, users.password, function(err, result) { //* if found compare the & check passworded match or not
                 if (result == true) { //if matched 
                     let token = jwt.sign({
-                        exp: Math.floor(Date.now() / 1000) + (60 * 60),
-                        email: email
+                        expiresIn: '5m',
+                        email: email,
+                        iat: Date.now()
                     }, 'secret'); //*assign token
                     res.cookie('user', token, { maxAge: 900000, httpOnly: false }).send();
                 } else { // if not matched
@@ -157,22 +143,14 @@ app.post("/resetpassword", cors(), async(req, res) => {
                 }
             }); //update the password with a token
 
-            //credentials for mail transport
-            var transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: 'mockmail4me@gmail.com',
-                    pass: 'ekkreipwgzxtnizy'
-                }
-            });
-            let url = `https://password-reset-flow-server.herokuapp.com/confirmation/${emailToken}`
+            let url = `https://password-reset-flow-server.herokuapp.com/auth/${emailToken}`
             let name = `${email.split('@')[0]}`
                 //email template for sending token
             var mailOptions = {
                 from: '"Hello buddy 👻" <noreply@satyaprasadbehara.com>',
                 to: `${email}`,
                 subject: 'Password Reset Link',
-                html: `Hello ${name} , Here's your password reset link: <br> <a style="color:green" href="${url}">Click Here To Reset</a> <br> Link expires in an hour...`
+                html: `Hello ${name} ,<br> Here's your password reset link:  <a style="color:green" href="${url}">Click Here To Reset</a> <br> Link expires in 10 Minutes...`
             };
 
             //Send the mail
@@ -180,7 +158,7 @@ app.post("/resetpassword", cors(), async(req, res) => {
                 if (error) {
                     console.log(error)
                 } else {
-                    return res.json({ type_: "success", message: 'Reset Link sent to ' + email + ' !!!' }); //* if mail sent send this status
+                    return res.json({ type_: "success", message: 'Reset Link sent to ' + email + ' !!!' }); //* if mail sent send this `status`
                 }
             });
         }
@@ -192,7 +170,7 @@ app.post("/resetpassword", cors(), async(req, res) => {
 
 
 //End point to verify the token
-app.get('/confirmation/:token', cors(), async(req, res) => {
+app.get('/auth/:token', cors(), async(req, res) => {
     const token = req.params.token
     jwt.verify(token, 'secret', async function(err, decoded) {
         if (decoded) {
@@ -271,7 +249,23 @@ app.post('/passwordreset', cors(), async(req, res) => {
     })
 
 })
+app.get('/cookie', function(req, res) {
+    const { cookies } = req.cookies
+    if (!cookies) {
+        return res.json({ type_: "danger", message: 'UnAuthorized Login !!!' });
+    }
+});
 
+app.get('/logout', function(req, res) {
+    cookie = req.cookies;
+    for (let prop in cookie) {
+        if (!cookie.hasOwnProperty(prop)) {
+            continue;
+        }
+        res.cookie(prop, '', { expires: new Date(0) });
+    }
+    return res.json({ type_: "successful", message: 'Logging out...' });
+});
 
 // listen the connections on the specified host
 app.listen(process.env.PORT || 3000, () => {
