@@ -71,19 +71,23 @@ app.post('/register', cors(), async(req, res) => {
         useNewUrlParser: true,
         useUnifiedTopology: true
     }); //connect to db
+
     let db = client.db("rightclick"); //db name
     let user = db.collection("users"); //collection name
-    try {
-        bcrypt.hash(password, saltRounds, function(err, hash) { //hash the client password
-            user.insertOne({
-                email: email,
-                password: hash
-            }); //* insert  credentials in db
-        });
-    } catch (e) {
-        res.sendStatus(400) // ! if error send this status
-    }
-    res.end()
+    user.findOne({ email: email }, (err, result) => {
+        if (err) console.log(err)
+        if (result == null) {
+            bcrypt.hash(password, saltRounds, function(err, hash) { //hash the client password
+                user.insertOne({
+                    email: email,
+                    password: hash
+                }); //* insert  credentials in db
+                return res.json({ type_: "success", message: 'Registration successful...' });
+            });
+        } else {
+            return res.json({ type_: "warning", message: 'Email already exists !!!' });
+        }
+    })
 })
 
 
@@ -111,14 +115,12 @@ app.post("/login", cors(), async(req, res) => {
                         exp: Math.floor(Date.now() / 1000) + (60 * 60),
                         email: email
                     }, 'secret'); //*assign token
-                    res.status(202).json({
-                        token: token
-                    }).cookie('jwt', token, { maxAge: 900000, httpOnly: false, secure: true });
+                    res.cookie('user', token, { maxAge: 900000, httpOnly: false }).send();
                 } else { // if not matched
-                    res.sendStatus(401) //! if not found send this status
+                    return res.json({ type_: "warning", message: 'Invalid Credentials !!!' });
                 }
                 if (err) {
-                    res.sendStatus(500) // if any error send this status
+                    return res.json({ type_: "warning", message: 'Some Thing Went Wrong !!!' }); // if any error send this status
                 }
             });
         }
@@ -141,9 +143,8 @@ app.post("/resetpassword", cors(), async(req, res) => {
         email: email
     }, (err, users) => {
         if (users == null) {
-            res.sendStatus(400) //! if not found send this status
+            return res.json({ type_: "warning", message: 'No User found with ' + email + ' !!!' }); //! if not found send this message
         } else { //if found 
-            // let token = uid(5);
             let emailToken = jwt.sign({
                 exp: Math.floor(Date.now() / 1000) + (60 * 60),
                 email: email
@@ -179,12 +180,12 @@ app.post("/resetpassword", cors(), async(req, res) => {
                 if (error) {
                     console.log(error)
                 } else {
-                    res.sendStatus(202); //* if mail sent send this status
+                    return res.json({ type_: "success", message: 'Reset Link sent to ' + email + ' !!!' }); //* if mail sent send this status
                 }
             });
         }
         if (err) {
-            res.sendStatus(500) //! if found any error send this status
+            return res.json({ type_: "danger", message: err }); //! if found any error send this status
         }
     })
 });
@@ -214,7 +215,7 @@ app.get('/confirmation/:token', cors(), async(req, res) => {
             });
         }
         if (err) {
-            res.sendStatus(401); //if the token expired send this status
+            return res.json({ type_: "danger", message: err }); //if the token expired send this status
         }
     });
 
@@ -239,7 +240,7 @@ app.post('/passwordreset', cors(), async(req, res) => {
         email: email
     }, (err, User) => {
         if (User == null) {
-            res.sendStatus(500); //! if not found send this status
+            return res.json({ type_: "warning", message: 'No User found with ' + email + ' !!!' }); //! if not found send this status
         } else {
             let token = User.confirmed //find if the token exists in the collection
             if (token == true) {
@@ -261,9 +262,9 @@ app.post('/passwordreset', cors(), async(req, res) => {
                             confirmed: false
                         }
                     });
-                    res.sendStatus(202); //*if done send this status
+                    return res.json({ type_: "successful", message: 'Password reset Successful' }); //*if done send this status
                 } catch (e) {
-                    res.sendStatus(400); //! if any error send this status
+                    return res.json({ type_: "danger", message: err }); //! if any error send this status
                 }
             }
         }
