@@ -267,7 +267,7 @@ app.get('/logout', function(req, res) {
     return res.json({ type_: "success", message: 'Logging out...' });
 });
 
-// listen the connections on the specified host
+// listen the connections on the host
 app.listen(process.env.PORT || 3000, () => {
     console.log('Server is live...')
 });
