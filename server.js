@@ -15,7 +15,8 @@ app.use(cors({
     origin: true,
     credentials: true
 }))
-
+const mongoClient = mongodb.MongoClient;
+const url = "mongodb+srv://satyabehara:ftjrbtc9S1@cluster0.u3j3r.mongodb.net/rightclick?retryWrites=true&w=majority";
 
 const {
     reset
@@ -32,8 +33,6 @@ const transporter = nodemailer.createTransport({
 });
 
 //connect to the server and the database 
-const mongoClient = mongodb.MongoClient;
-const url = "mongodb+srv://satyabehara:ftjrbtc9S1@cluster0.u3j3r.mongodb.net/rightclick?retryWrites=true&w=majority";
 
 mongoClient.connect(url, {
     useNewUrlParser: true,
@@ -172,7 +171,7 @@ app.post("/resetpassword", async (req, res) => {
                 }
             }); //update the password with a token
 
-            let url = `http://127.0.0.1:5500/auth/${emailToken}`
+            let url = `https://password-reset-flow-server.herokuapp.com/auth/${emailToken}`
             let name = `${email.split('@')[0]}`
             //email template for sending token
             var mailOptions = {
@@ -223,7 +222,7 @@ app.get('/auth/:token', async (req, res) => {
                 }
             }, (err, result) => {
                 if (result) {
-                    res.redirect('http://127.0.0.1:5500/newpassword.html');
+                    res.redirect('https://password-reset-flow-ui.netlify.app/newpassword.html');
                 }
             });
         }
@@ -237,8 +236,6 @@ app.get('/auth/:token', async (req, res) => {
 
 
 })
-
-
 
 //Endpoint to verify the token and senting new password
 app.post('/passwordreset', async (req, res) => {
@@ -309,8 +306,6 @@ app.post('/checklogin', function (req, res) {
          }
       });
 });
-
-
 
 // listen the connections on the host
 app.listen(process.env.PORT || 3000, () => {
