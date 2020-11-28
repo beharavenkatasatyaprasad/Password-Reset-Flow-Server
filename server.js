@@ -23,7 +23,7 @@ const url = "mongodb+srv://satyabehara:ftjrbtc9S1@cluster0.u3j3r.mongodb.net/rig
 mongoClient.connect(url, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-}, function (err, db) {
+}, function(err, db) {
     if (err) throw err;
     console.log("Database Connected!");
     db.close();
@@ -36,7 +36,7 @@ app.get("/", cors(), (req, res) => {
 });
 
 //End point find if the email is already taken.. 
-app.post('/findPossibleDuplications', cors(), async (req, res) => {
+app.post('/findPossibleDuplications', cors(), async(req, res) => {
     let {
         email
     } = req.body //email from client
@@ -60,7 +60,7 @@ app.post('/findPossibleDuplications', cors(), async (req, res) => {
 })
 
 //Endpoint to register the user
-app.post('/register', cors(), async (req, res) => {
+app.post('/register', cors(), async(req, res) => {
     let {
         email,
         password
@@ -72,7 +72,7 @@ app.post('/register', cors(), async (req, res) => {
     let db = client.db("rightclick"); //db name
     let user = db.collection("users"); //collection name
     try {
-        bcrypt.hash(password, saltRounds, function (err, hash) { //hash the client password
+        bcrypt.hash(password, saltRounds, function(err, hash) { //hash the client password
             user.insertOne({
                 email: email,
                 password: hash
@@ -86,7 +86,7 @@ app.post('/register', cors(), async (req, res) => {
 
 
 //End point for checking the credentials for loginging in
-app.post("/login", cors(), async (req, res) => {
+app.post("/login", cors(), async(req, res) => {
     const {
         email,
         password
@@ -103,12 +103,15 @@ app.post("/login", cors(), async (req, res) => {
         if (users == null) { //find if the user with entered email exists or not
             res.sendStatus(400); //! if not found send this status
         } else {
-            bcrypt.compare(password, users.password, function (err, result) { //* if found compare the & check passworded match or not
+            bcrypt.compare(password, users.password, function(err, result) { //* if found compare the & check passworded match or not
                 if (result == true) { //if matched 
-                    let token = uid(16) //*assign a random token
+                    let token = jwt.sign({
+                        exp: Math.floor(Date.now() / 1000) + (60 * 60),
+                        email: email
+                    }, 'secret'); //*assign token
                     res.status(202).json({
                         token: token
-                    })
+                    }).cookie('jwt', token, { maxAge: 900000, httpOnly: true, secure: true });
                 } else { // if not matched
                     res.sendStatus(401) //! if not found send this status
                 }
@@ -122,7 +125,7 @@ app.post("/login", cors(), async (req, res) => {
 
 
 //Endpoint for resetting password
-app.post("/resetpassword", cors(), async (req, res) => {
+app.post("/resetpassword", cors(), async(req, res) => {
     const {
         email
     } = req.body //email from client
@@ -139,11 +142,10 @@ app.post("/resetpassword", cors(), async (req, res) => {
             res.sendStatus(400) //! if not found send this status
         } else { //if found 
             // let token = uid(5);
-            let emailToken =  jwt.sign({
+            let emailToken = jwt.sign({
                 exp: Math.floor(Date.now() / 1000) + (60 * 60),
                 email: email
-              }, 'secret');
-           
+            }, 'secret');
             user.findOneAndUpdate({
                 email: email
             }, {
@@ -151,7 +153,7 @@ app.post("/resetpassword", cors(), async (req, res) => {
                     password: emailToken
                 }
             }); //update the password with a token
-            
+
             //credentials for mail transport
             var transporter = nodemailer.createTransport({
                 service: 'gmail',
@@ -160,9 +162,9 @@ app.post("/resetpassword", cors(), async (req, res) => {
                     pass: 'ekkreipwgzxtnizy'
                 }
             });
-            let url =  `https://password-reset-flow-server.herokuapp.com/confirmation/${emailToken}`
+            let url = `https://password-reset-flow-server.herokuapp.com/confirmation/${emailToken}`
             let name = `${email.split('@')[0]}`
-            //email template for sending token
+                //email template for sending token
             var mailOptions = {
                 from: '"Hello buddy 👻" <noreply@satyaprasadbehara.com>',
                 to: `${email}`,
@@ -171,7 +173,7 @@ app.post("/resetpassword", cors(), async (req, res) => {
             };
 
             //Send the mail
-            transporter.sendMail(mailOptions, function (error, info) {
+            transporter.sendMail(mailOptions, function(error, info) {
                 if (error) {
                     console.log(error)
                 } else {
@@ -187,10 +189,10 @@ app.post("/resetpassword", cors(), async (req, res) => {
 
 
 //End point to verify the token
-app.get('/confirmation/:token',cors(),async (req,res)=>{
+app.get('/confirmation/:token', cors(), async(req, res) => {
     const token = req.params.token
-    jwt.verify(token, 'secret',async function(err, decoded) {
-        if(decoded){
+    jwt.verify(token, 'secret', async function(err, decoded) {
+        if (decoded) {
             let client = await mongoClient.connect(url, {
                 useNewUrlParser: true,
                 useUnifiedTopology: true
@@ -209,18 +211,18 @@ app.get('/confirmation/:token',cors(),async (req,res)=>{
                 }
             });
         }
-        if(err){
-            res.sendStatus(401);//if the token expired send this status
+        if (err) {
+            res.sendStatus(401); //if the token expired send this status
         }
-      });
-    
+    });
+
 
 })
 
 
 
 //Endpoint to verify the token and senting new password
-app.post('/passwordreset', cors(), async (req, res) => {
+app.post('/passwordreset', cors(), async(req, res) => {
     const {
         password,
         email
@@ -231,16 +233,16 @@ app.post('/passwordreset', cors(), async (req, res) => {
     }); //connect to db
     let db = client.db("rightclick"); //db name
     let user = db.collection("users"); //collection name
-    user.findOne({ 
+    user.findOne({
         email: email
     }, (err, User) => {
         if (User == null) {
             res.sendStatus(500); //! if not found send this status
         } else {
             let token = User.confirmed //find if the token exists in the collection
-            if(token == true){
+            if (token == true) {
                 try {
-                    bcrypt.hash(password, saltRounds, function (err, hash) { //hash the new password
+                    bcrypt.hash(password, saltRounds, function(err, hash) { //hash the new password
                         user.findOneAndUpdate({
                             email: email
                         }, {
@@ -248,7 +250,7 @@ app.post('/passwordreset', cors(), async (req, res) => {
                                 password: hash //and set the new hashed password in the db
                             }
                         });
-                        
+
                     });
                     user.findOneAndUpdate({
                         email: email
