@@ -11,10 +11,7 @@ const mongodb = require('mongodb'); //MongoDB driver
 const cors = require('cors'); //middleware that can be used to enable CORS with various options
 app.use(cookieParser())
 app.options('*', cors()) //(Enable All CORS Requests)
-app.use(cors({
-    origin: true,
-    credentials: true
-}))
+app.use(cors())
 const mongoClient = mongodb.MongoClient;
 const url = "mongodb+srv://satyabehara:ftjrbtc9S1@cluster0.u3j3r.mongodb.net/rightclick?retryWrites=true&w=majority";
 
