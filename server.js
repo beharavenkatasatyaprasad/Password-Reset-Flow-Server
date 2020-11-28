@@ -101,7 +101,7 @@ app.post("/login", cors(), async(req, res) => {
                         email: email,
                         iat: Date.now()
                     }, 'secret'); //*assign token
-                    res.cookie('user', token, { maxAge: 900000, httpOnly: false }).send();
+                    res.cookie('user', token, { maxAge: 900000, httpOnly: true ,secure: false}).send();
                 } else { // if not matched
                     return res.json({ type_: "warning", message: 'Invalid Credentials !!!' });
                 }
@@ -249,14 +249,14 @@ app.post('/passwordreset', cors(), async(req, res) => {
     })
 
 })
-app.get('/cookie', function(req, res) {
+app.get('/cookie', cors(), function(req, res) {
     const { cookies } = req.cookies
     if (!cookies) {
         return res.json({ type_: "danger", message: 'UnAuthorized Login !!!' });
     }
 });
 
-app.get('/logout', function(req, res) {
+app.get('/logout', cors(), function(req, res) {
     cookie = req.cookies
     for (let prop in cookie) {
         if (!cookie.hasOwnProperty(prop)) {
