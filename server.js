@@ -1,13 +1,15 @@
 const express = require('express');
 const app = express(); //initialize express
 const bodyParser = require('body-parser'); //body parsing middleware
-var jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser')
 const bcrypt = require('bcryptjs'); //library to hash passwords
 const saltRounds = 10; //cost factor (controls how much time is needed to calculate a single BCrypt hash)
-const uid = require('rand-token').uid; // random token generator
+// const uid = require('rand-token').uid; // random token generator
 const nodemailer = require("nodemailer"); //end e-mails
 const mongodb = require('mongodb'); //MongoDB driver 
 const cors = require('cors'); //middleware that can be used to enable CORS with various options
+app.use(cookieParser())
 app.options('*', cors()) //(Enable All CORS Requests)
 
 const {
