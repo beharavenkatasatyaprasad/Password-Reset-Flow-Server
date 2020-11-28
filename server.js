@@ -111,7 +111,7 @@ app.post("/login", cors(), async(req, res) => {
                     }, 'secret'); //*assign token
                     res.status(202).json({
                         token: token
-                    }).cookie('jwt', token, { maxAge: 900000, httpOnly: true, secure: true });
+                    }).cookie('jwt', token, { maxAge: 900000, httpOnly: false, secure: true });
                 } else { // if not matched
                     res.sendStatus(401) //! if not found send this status
                 }
