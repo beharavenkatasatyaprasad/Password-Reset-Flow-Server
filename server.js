@@ -240,7 +240,7 @@ app.post('/passwordreset', cors(), async(req, res) => {
                             confirmed: false
                         }
                     });
-                    return res.json({ type_: "successful", message: 'Password reset Successful' }); //*if done send this status
+                    return res.json({ type_: "success", message: 'Password reset Successful' }); //*if done send this status
                 } catch (e) {
                     return res.json({ type_: "danger", message: err }); //! if any error send this status
                 }
@@ -264,7 +264,7 @@ app.get('/logout', function(req, res) {
         }
         res.cookie(prop, '', { expires: new Date(0) });
     }
-    return res.json({ type_: "successful", message: 'Logging out...' });
+    return res.json({ type_: "success", message: 'Logging out...' });
 });
 
 // listen the connections on the specified host
