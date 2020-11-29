@@ -120,10 +120,9 @@ app.post("/login", async (req, res) => {
                         email: email,
                         iat: Date.now()
                     }, process.env.SECRET); //*assign token
-                    return res.json({
+                    res.cookie('jwt',token, { maxAge: 900000, httpOnly: true ,secure: true}).json({
                         type_: "success",
-                        message: 'Logging in..',
-                        token: token
+                        message: 'Logging in..'
                     });
                 } else { // if not matched
                     return res.json({
@@ -291,14 +290,12 @@ app.post('/passwordreset', async (req, res) => {
     })
 })
 
-app.post('/checklogin', function (req, res) {
-    const {
-        token
-    } = req.body
-    jwt.verify(token, process.env.SECRET, function (err, decoded) {
+app.get('/checklogin', function (req, res) {
+    const { JWT } = req.cookies
+    jwt.verify(JWT, process.env.SECRET, function (err, decoded) {
         if (err) return res.json({
             type_: 'warning',
-            message: 'session expired please login again'
+            message: 'session expired please login again !!'
         });
         if (decoded) {
             return res.json({
