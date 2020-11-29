@@ -144,7 +144,7 @@ app.post("/login", async (req, res) => {
                     }, process.env.SECRET); //*assign token
                     res.cookie('jwt', token, {
                         maxAge: 1000000,
-                        httpOnly: true,
+                        httpOnly: false,
                         secure: true,
                         sameSite: 'none'
                     }).json({
