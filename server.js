@@ -139,6 +139,7 @@ app.post("/login", async (req, res) => {
                         type_: "success",
                         message: 'Logging in..'
                     })
+                    console.log(token)
                 } else { // if not matched
                     return res.json({
                         type_: "warning",
