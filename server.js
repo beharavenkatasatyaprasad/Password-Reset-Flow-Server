@@ -134,8 +134,7 @@ app.post("/login", async (req, res) => {
                     res.cookie('jwt', token, {
                         maxAge: 1000000,
                         httpOnly: true,
-                        secure: process.env.NODE_ENV === "production",
-                        // domain: process.env.ORIGIN_HOSTNAME || "localhost",
+                        secure: true,
                         sameSite: 'none'
                     }).json({
                         type_: "success",
