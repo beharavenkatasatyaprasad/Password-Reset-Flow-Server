@@ -9,7 +9,7 @@ const nodemailer = require("nodemailer"); //Send e-mails
 require('dotenv').config()
 const mongodb = require('mongodb'); //MongoDB driver 
 const cors = require('cors'); //middleware that can be used to enable CORS with various options
-
+app.proxy = true
 app.use(cookieParser())
 app.options('*', cors()) //(Enable All CORS Requests)
 // app.use(cors())
@@ -134,7 +134,9 @@ app.post("/login", async (req, res) => {
                     res.cookie('jwt', token, {
                         maxAge: 1000000,
                         httpOnly: true,
-                        secure: true
+                        secure: process.env.NODE_ENV === "production",
+                        domain: process.env.ORIGIN_HOSTNAME || "localhost",
+                        sameSite: 'none'
                     }).json({
                         type_: "success",
                         message: 'Logging in..'
