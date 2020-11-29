@@ -296,7 +296,7 @@ app.post('/checklogin', function (req, res) {
     } = req.body
     jwt.verify(token, 'secret', function(err, decoded) {
          if(err) return res.json({type_:'warning', message: 'session expired please login again' });
-         if(decoded != 'undefined'){
+         if(decoded){
              return res.json({ type_:'success',message: 'Login Successful',user: decoded.email });
          }else{
             return res.json({type_:'warning', message: 'Invalid Login..' });
