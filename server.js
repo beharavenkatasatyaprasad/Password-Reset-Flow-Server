@@ -5,15 +5,16 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser')
 const bcrypt = require('bcryptjs'); //library to hash passwords
 const saltRounds = 10; //cost factor (controls how much time is needed to calculate a single BCrypt hash)
-// const uid = require('rand-token').uid; // random token generator
-const nodemailer = require("nodemailer"); //end e-mails
+const nodemailer = require("nodemailer"); //Send e-mails
+require('dotenv').config()
 const mongodb = require('mongodb'); //MongoDB driver 
 const cors = require('cors'); //middleware that can be used to enable CORS with various options
+
 app.use(cookieParser())
 app.options('*', cors()) //(Enable All CORS Requests)
 app.use(cors())
 const mongoClient = mongodb.MongoClient;
-const url = "mongodb+srv://satyabehara:ftjrbtc9S1@cluster0.u3j3r.mongodb.net/rightclick?retryWrites=true&w=majority";
+const url = process.env.MONGODB_URL;
 
 const {
     reset
@@ -24,8 +25,8 @@ app.use(bodyParser.json());
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'mockmail4me@gmail.com',
-        pass: 'ekkreipwgzxtnizy'
+        user: process.env.GMAILUSER,
+        pass: process.env.GMAILPASS
     }
 });
 
@@ -118,7 +119,7 @@ app.post("/login", async (req, res) => {
                         expiresIn: '1h',
                         email: email,
                         iat: Date.now()
-                    }, 'secret'); //*assign token
+                    },  process.env.SECRET); //*assign token
                     return res.json({
                         type_: "success",
                         message: 'Logging in..',
@@ -159,7 +160,7 @@ app.post("/resetpassword", async (req, res) => {
             let emailToken = jwt.sign({
                 exp: Math.floor(Date.now() / 1000) + (60 * 60),
                 email: email
-            }, 'secret');
+            }, process.env.SECRET);
             user.findOneAndUpdate({
                 email: email
             }, {
@@ -203,7 +204,7 @@ app.post("/resetpassword", async (req, res) => {
 //End point to verify the token
 app.get('/auth/:token', async (req, res) => {
     const token = req.params.token
-    jwt.verify(token, 'secret', async function (err, decoded) {
+    jwt.verify(token,  process.env.SECRET, async function (err, decoded) {
         if (decoded) {
             let client = await mongoClient.connect(url, {
                 useNewUrlParser: true,
@@ -294,7 +295,7 @@ app.post('/checklogin', function (req, res) {
     const {
         token
     } = req.body
-    jwt.verify(token, 'secret', function(err, decoded) {
+    jwt.verify(token,  process.env.SECRET, function(err, decoded) {
          if(err) return res.json({type_:'warning', message: 'session expired please login again' });
          if(decoded){
              return res.json({ type_:'success',message: 'Login Successful',user: decoded.email });
