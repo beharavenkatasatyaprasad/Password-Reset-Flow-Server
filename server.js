@@ -3,38 +3,16 @@ const app = express(); //initialize express
 const bodyParser = require('body-parser'); //body parsing middleware
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser')
-const session = require('express-session');
 const bcrypt = require('bcryptjs'); //library to hash passwords
 const saltRounds = 10; //cost factor (controls how much time is needed to calculate a single BCrypt hash)
 const nodemailer = require("nodemailer"); //Send e-mails
 require('dotenv').config()
 const mongodb = require('mongodb'); //MongoDB driver 
 const cors = require('cors'); //middleware that can be used to enable CORS with various options
+
 app.use(cookieParser())
 app.options('*', cors()) //(Enable All CORS Requests)
 app.use(cors())
-// app.use(cors({
-//     origin: true,
-//     credentials: true
-// }));
-
-// app.use(function (req, res, next) {
-//     res.header("Access-Control-Allow-Origin", "*");
-//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//     next();
-// });
-
-app.set('trust proxy', 1) // trust first proxy
-
-app.use(session({
-  secret: 'keyboard cat',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: true }
-}))
-
-
-
 const mongoClient = mongodb.MongoClient;
 const url = process.env.MONGODB_URL;
 
@@ -142,15 +120,11 @@ app.post("/login", async (req, res) => {
                         email: email,
                         iat: Date.now()
                     }, process.env.SECRET); //*assign token
-                    res.cookie('jwt', token, {
-                        maxAge: 1000000,
-                        httpOnly: false,
-                        secure: true,
-                        sameSite: 'none'
-                    }).json({
+                    return res.json({
                         type_: "success",
-                        message: 'Logging in..'
-                    })
+                        message: 'Logging in..',
+                        token: token
+                    });
                 } else { // if not matched
                     return res.json({
                         type_: "warning",
@@ -194,6 +168,7 @@ app.post("/resetpassword", async (req, res) => {
                     password: emailToken
                 }
             }); //update the password with a token
+
             let url = `https://password-reset-flow-server.herokuapp.com/auth/${emailToken}`
             let name = `${email.split('@')[0]}`
             //email template for sending token
@@ -292,6 +267,7 @@ app.post('/passwordreset', async (req, res) => {
                                 password: hash //and set the new hashed password in the db
                             }
                         });
+
                     });
                     user.findOneAndUpdate({
                         email: email
@@ -315,18 +291,19 @@ app.post('/passwordreset', async (req, res) => {
     })
 })
 
-app.get('/checklogin', function (req, res) {
-    const cooked = req.cookies
-    console.log(cooked.jwt)
-    jwt.verify(cooked.jwt, process.env.SECRET, function (err, decoded) {
+app.post('/checklogin', function (req, res) {
+    const {
+        token
+    } = req.body
+    jwt.verify(token, process.env.SECRET, function (err, decoded) {
         if (err) return res.json({
             type_: 'warning',
-            message: 'session expired'
+            message: 'session expired please login again'
         });
         if (decoded) {
             return res.json({
                 type_: 'success',
-                message: 'Login Successful..',
+                message: 'Login Successful',
                 user: decoded.email
             });
         } else {
@@ -336,10 +313,6 @@ app.get('/checklogin', function (req, res) {
             });
         }
     });
-});
-
-app.get("/logout", (req, res) => {
-    res.clearCookie('jwt').json({ type_:'success', message: 'Logging Out...' })
 });
 
 // listen the connections on the host
