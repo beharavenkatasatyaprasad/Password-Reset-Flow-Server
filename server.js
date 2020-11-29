@@ -292,6 +292,7 @@ app.post('/passwordreset', async (req, res) => {
 
 app.get('/checklogin', function (req, res) {
     const { JWT } = req.cookies
+    console.log(JWT)
     jwt.verify(JWT, process.env.SECRET, function (err, decoded) {
         if (err) return res.json({
             type_: 'warning',
