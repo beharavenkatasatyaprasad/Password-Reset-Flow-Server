@@ -3,26 +3,37 @@ const app = express(); //initialize express
 const bodyParser = require('body-parser'); //body parsing middleware
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser')
+const session = require('express-session');
 const bcrypt = require('bcryptjs'); //library to hash passwords
 const saltRounds = 10; //cost factor (controls how much time is needed to calculate a single BCrypt hash)
 const nodemailer = require("nodemailer"); //Send e-mails
 require('dotenv').config()
 const mongodb = require('mongodb'); //MongoDB driver 
 const cors = require('cors'); //middleware that can be used to enable CORS with various options
-app.proxy = true
 app.use(cookieParser())
 app.options('*', cors()) //(Enable All CORS Requests)
-// app.use(cors())
-app.use(cors({
-    origin: true,
-    credentials: true
-}));
+app.use(cors())
+// app.use(cors({
+//     origin: true,
+//     credentials: true
+// }));
 
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
+// app.use(function (req, res, next) {
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//     next();
+// });
+
+app.set('trust proxy', 1) // trust first proxy
+
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: true }
+}))
+
+
 
 const mongoClient = mongodb.MongoClient;
 const url = process.env.MONGODB_URL;
