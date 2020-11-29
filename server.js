@@ -135,7 +135,7 @@ app.post("/login", async (req, res) => {
                         maxAge: 1000000,
                         httpOnly: true,
                         secure: process.env.NODE_ENV === "production",
-                        domain: process.env.ORIGIN_HOSTNAME || "localhost",
+                        // domain: process.env.ORIGIN_HOSTNAME || "localhost",
                         sameSite: 'none'
                     }).json({
                         type_: "success",
