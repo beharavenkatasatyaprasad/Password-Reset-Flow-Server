@@ -20,7 +20,6 @@
 - express
 - mongodb
 - nodemailer
-- rand-token
 - jsonwebtoken
 
 
