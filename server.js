@@ -119,7 +119,7 @@ app.post("/login", async (req, res) => {
                         expiresIn: '1h',
                         email: email,
                         iat: Date.now()
-                    },  process.env.SECRET); //*assign token
+                    }, process.env.SECRET); //*assign token
                     return res.json({
                         type_: "success",
                         message: 'Logging in..',
@@ -204,7 +204,7 @@ app.post("/resetpassword", async (req, res) => {
 //End point to verify the token
 app.get('/auth/:token', async (req, res) => {
     const token = req.params.token
-    jwt.verify(token,  process.env.SECRET, async function (err, decoded) {
+    jwt.verify(token, process.env.SECRET, async function (err, decoded) {
         if (decoded) {
             let client = await mongoClient.connect(url, {
                 useNewUrlParser: true,
@@ -295,14 +295,24 @@ app.post('/checklogin', function (req, res) {
     const {
         token
     } = req.body
-    jwt.verify(token,  process.env.SECRET, function(err, decoded) {
-         if(err) return res.json({type_:'warning', message: 'session expired please login again' });
-         if(decoded){
-             return res.json({ type_:'success',message: 'Login Successful',user: decoded.email });
-         }else{
-            return res.json({type_:'warning', message: 'Invalid Login..' });
-         }
-      });
+    jwt.verify(token, process.env.SECRET, function (err, decoded) {
+        if (err) return res.json({
+            type_: 'warning',
+            message: 'session expired please login again'
+        });
+        if (decoded) {
+            return res.json({
+                type_: 'success',
+                message: 'Login Successful',
+                user: decoded.email
+            });
+        } else {
+            return res.json({
+                type_: 'warning',
+                message: 'Invalid Login..'
+            });
+        }
+    });
 });
 
 // listen the connections on the host
