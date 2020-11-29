@@ -134,7 +134,8 @@ app.post("/login", async (req, res) => {
                     res.cookie('jwt', token, {
                         maxAge: 1000000,
                         httpOnly: true,
-                        secure: true
+                        secure: true,
+                        sameSite: 'none'
                     }).json({
                         type_: "success",
                         message: 'Logging in..'
@@ -309,7 +310,7 @@ app.get('/checklogin', function (req, res) {
     jwt.verify(cooked.jwt, process.env.SECRET, function (err, decoded) {
         if (err) return res.json({
             type_: 'warning',
-            message: 'session expired...'
+            message: 'session expired'
         });
         if (decoded) {
             return res.json({
