@@ -127,7 +127,7 @@ app.post("/login", async (req, res) => {
                 }
                 if (result == true) { //if matched 
                     let token = jwt.sign({
-                        expiresIn: '1h',
+                        exp: Math.floor(Date.now() / 1000) + (60 * 60),
                         email: email,
                         iat: Date.now()
                     }, process.env.SECRET); //*assign token
