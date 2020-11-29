@@ -310,7 +310,7 @@ app.get('/checklogin', function (req, res) {
     jwt.verify(cooked.jwt, process.env.SECRET, function (err, decoded) {
         if (err) return res.json({
             type_: 'warning',
-            message: err
+            message: 'session expired...'
         });
         if (decoded) {
             return res.json({
