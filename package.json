@@ -13,10 +13,9 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.6.3",
     "nodemailer": "^6.4.16",
-    "rand-token": "^1.0.1"
+    "nodemon": "^2.0.6"
   },
-  "devDependencies": {
-    "nodemon": "^2.0.6"},
+  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
