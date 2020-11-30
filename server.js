@@ -27,9 +27,7 @@ app.use(cors({
 const mongoClient = mongodb.MongoClient;
 const url = process.env.MONGODB_URL;
 
-const {
-    reset
-} = require('nodemon');
+
 app.use(bodyParser.json());
 
 //credentials for mail transport
@@ -303,7 +301,13 @@ app.post('/passwordreset', async (req, res) => {
     })
 })
 
-app.get('/checklogin', function (req, res) {
+const corsOptions = {
+    origin: 'https://password-reset-flow-ui.netlify.app/home.html',
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+
+
+app.get('/checklogin',cors(corsOptions), function (req, res) {
     const cooked = req.cookies
     console.log(cooked.jwt)
     jwt.verify(cooked.jwt, process.env.SECRET, function (err, decoded) {
@@ -326,7 +330,7 @@ app.get('/checklogin', function (req, res) {
     });
 });
 
-app.get("/logout", (req, res) => {
+app.get("/logout",cors(corsOptions), (req, res) => {
     res.clearCookie('jwt').json({
         type_: 'success',
         message: 'Logging Out...'
