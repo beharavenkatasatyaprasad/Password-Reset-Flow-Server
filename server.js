@@ -9,31 +9,22 @@ const nodemailer = require("nodemailer"); //Send e-mails
 require('dotenv').config()
 const mongodb = require('mongodb'); //MongoDB driver 
 const cors = require('cors'); //middleware that can be used to enable CORS with various options
+const mongoClient = mongodb.MongoClient;
+const url = process.env.MONGODB_URL;
 app.proxy = true
-app.use(cookieParser())
-// app.use(cors())
-const allowedOrigins = ['https://password-reset-flow-ui.netlify.app','https://password-reset-flow-ui.netlify.app/index.html','https://password-reset-flow-ui.netlify.app/home.html','https://password-reset-flow-ui.netlify.app/resetpassword.html','https://password-reset-flow-ui.netlify.app/signup.html','https://password-reset-flow-ui.netlify.app/newpassword.html']
+
+const allowedOrigins = ['https://password-reset-flow-ui.netlify.app', 'https://password-reset-flow-ui.netlify.app/index.html', 'https://password-reset-flow-ui.netlify.app/home.html', 'https://password-reset-flow-ui.netlify.app/resetpassword.html', 'https://password-reset-flow-ui.netlify.app/signup.html', 'https://password-reset-flow-ui.netlify.app/newpassword.html']
 app.use(cors({
     credentials: true,
     origin: (origin, callback) => {
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true) 
-      } else {
-        callback(new Error(`Origin: ${origin} is now allowed`))
-      }
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true)
+        } else {
+            callback(new Error(`Origin: ${origin} is now allowed`))
+        }
     }
-  }))
-
-// app.use(function (req, res, next) {
-//     res.header("Access-Control-Allow-Origin", "*");
-//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//     next();
-// });
-
-const mongoClient = mongodb.MongoClient;
-const url = process.env.MONGODB_URL;
-
-
+}))
+app.use(cookieParser())
 app.use(bodyParser.json());
 
 //credentials for mail transport
