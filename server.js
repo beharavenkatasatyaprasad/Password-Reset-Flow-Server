@@ -11,12 +11,18 @@ const mongodb = require('mongodb'); //MongoDB driver
 const cors = require('cors'); //middleware that can be used to enable CORS with various options
 app.proxy = true
 app.use(cookieParser())
-app.options('*', cors()) //(Enable All CORS Requests)
 // app.use(cors())
+const allowedOrigins = ['https://password-reset-flow-ui.netlify.app/','https://password-reset-flow-ui.netlify.app/home.html']
 app.use(cors({
-    origin: true,
-    credentials: true
-}));
+    credentials: true,
+    origin: (origin, callback) => {
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true) 
+      } else {
+        callback(new Error(`Origin: ${origin} is now allowed`))
+      }
+    }
+  }))
 
 // app.use(function (req, res, next) {
 //     res.header("Access-Control-Allow-Origin", "*");
@@ -301,14 +307,9 @@ app.post('/passwordreset', async (req, res) => {
     })
 })
 
-const corsOptions = {
-    origin: 'https://password-reset-flow-ui.netlify.app/home.html',
-    credentials: true,
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
 
 
-app.get('/checklogin',cors(corsOptions), function (req, res) {
+app.get('/checklogin', function (req, res) {
     const cooked = req.cookies
     console.log(cooked.jwt)
     jwt.verify(cooked.jwt, process.env.SECRET, function (err, decoded) {
@@ -331,7 +332,7 @@ app.get('/checklogin',cors(corsOptions), function (req, res) {
     });
 });
 
-app.get("/logout",cors(corsOptions), (req, res) => {
+app.get("/logout", (req, res) => {
     res.clearCookie('jwt').json({
         type_: 'success',
         message: 'Logging Out...'
