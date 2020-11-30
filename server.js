@@ -11,18 +11,19 @@ const mongodb = require('mongodb'); //MongoDB driver
 const cors = require('cors'); //middleware that can be used to enable CORS with various options
 app.proxy = true
 app.use(cookieParser())
-app.options('*', cors()) //(Enable All CORS Requests)
-app.use(cors())
-// app.use(cors({
-//     origin: true,
-//     credentials: true
-// }));
 
-// app.use(function (req, res, next) {
-//     res.header("Access-Control-Allow-Origin", "*");
-//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//     next();
-// });
+var whitelist = ['https://password-reset-flow-ui.netlify.app/', 'https://password-reset-flow-ui.netlify.app/index.html', 'https://password-reset-flow-ui.netlify.app/newpassword.html', 'https://password-reset-flow-ui.netlify.app/resetpassword.html', 'https://password-reset-flow-ui.netlify.app/signup.html']
+var corsOptions = {
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+            callback(null, true)
+        } else {
+            callback(new Error('Not allowed by CORS'))
+        }
+    }
+}
+
+app.use(cors(corsOptions))
 
 const mongoClient = mongodb.MongoClient;
 const url = process.env.MONGODB_URL;
@@ -328,7 +329,10 @@ app.get('/checklogin', function (req, res) {
 });
 
 app.get("/logout", (req, res) => {
-    res.clearCookie('jwt').json({ type_:'success', message: 'Logging Out...' })
+    res.clearCookie('jwt').json({
+        type_: 'success',
+        message: 'Logging Out...'
+    })
 });
 
 // listen the connections on the host
