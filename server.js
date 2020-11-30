@@ -14,7 +14,7 @@ app.use(cookieParser())
 // app.use(cors())
 const allowedOrigins = ['https://password-reset-flow-ui.netlify.app','https://password-reset-flow-ui.netlify.app/home.html']
 app.use(cors({
-    // credentials: true,
+    credentials: true,
     origin: (origin, callback) => {
       if (allowedOrigins.includes(origin)) {
         callback(null, true) 
