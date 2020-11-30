@@ -12,11 +12,11 @@ const cors = require('cors'); //middleware that can be used to enable CORS with 
 app.proxy = true
 app.use(cookieParser())
 app.options('*', cors()) //(Enable All CORS Requests)
-app.use(cors())
-// app.use(cors({
-//     origin: true,
-//     credentials: true
-// }));
+// app.use(cors())
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 
 // app.use(function (req, res, next) {
 //     res.header("Access-Control-Allow-Origin", "*");
