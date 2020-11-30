@@ -134,12 +134,11 @@ app.post("/login", async (req, res) => {
                     res.cookie('jwt', token, {
                         maxAge: 1000000,
                         httpOnly: true,
-                        secure: true
+                        secure: false
                     }).json({
                         type_: "success",
                         message: 'Logging in..'
                     })
-                    console.log(token)
                 } else { // if not matched
                     return res.json({
                         type_: "warning",
@@ -328,7 +327,10 @@ app.get('/checklogin', function (req, res) {
 });
 
 app.get("/logout", (req, res) => {
-    res.clearCookie('jwt').json({ type_:'success', message: 'Logging Out...' })
+    res.clearCookie('jwt').json({
+        type_: 'success',
+        message: 'Logging Out...'
+    })
 });
 
 // listen the connections on the host
