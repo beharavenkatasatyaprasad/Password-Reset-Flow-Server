@@ -12,7 +12,7 @@ const cors = require('cors'); //middleware that can be used to enable CORS with 
 app.proxy = true
 app.use(cookieParser())
 // app.use(cors())
-const allowedOrigins = ['https://password-reset-flow-ui.netlify.app','https://password-reset-flow-ui.netlify.app/home.html']
+const allowedOrigins = ['https://password-reset-flow-ui.netlify.app','https://password-reset-flow-ui.netlify.app/index.html','https://password-reset-flow-ui.netlify.app/home.html','https://password-reset-flow-ui.netlify.app/resetpassword.html','https://password-reset-flow-ui.netlify.app/signup.html','https://password-reset-flow-ui.netlify.app/newpassword.html',']
 app.use(cors({
     credentials: true,
     origin: (origin, callback) => {
