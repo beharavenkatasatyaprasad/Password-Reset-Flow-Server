@@ -13,7 +13,7 @@ const mongoClient = mongodb.MongoClient;
 const url = process.env.MONGODB_URL;
 app.proxy = true
 
-const allowedOrigins = ['https://password-reset-flow-ui.netlify.app', 'https://password-reset-flow-ui.netlify.app/index.html', 'https://password-reset-flow-ui.netlify.app/home.html', 'https://password-reset-flow-ui.netlify.app/resetpassword.html', 'https://password-reset-flow-ui.netlify.app/signup.html', 'https://password-reset-flow-ui.netlify.app/newpassword.html']
+const allowedOrigins = ['https://password-reset-flow-ui.netlify.app', 'https://password-reset-flow-ui.netlify.app/index.html', 'https://password-reset-flow-ui.netlify.app/home.html', 'https://password-reset-flow-ui.netlify.app/resetpassword.html', 'https://password-reset-flow-ui.netlify.app/signup.html', 'https://password-reset-flow-ui.netlify.app/newpassword.html','https://password-reset-flow-server.herokuapp.com']
 app.use(cors({
     credentials: true,
     origin: (origin, callback) => {
@@ -210,7 +210,7 @@ app.post("/resetpassword", async (req, res) => {
 
 
 //End point to verify the token
-app.get('/auth/:token',cors({origin:true}), async (req, res) => {
+app.get('/auth/:token', async (req, res) => {
     const token = req.params.token
     jwt.verify(token, process.env.SECRET, async function (err, decoded) {
         if (decoded) {
