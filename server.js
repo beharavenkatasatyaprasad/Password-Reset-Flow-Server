@@ -210,7 +210,7 @@ app.post("/resetpassword", async (req, res) => {
 
 
 //End point to verify the token
-app.get('/auth/:token', async (req, res) => {
+app.options('*',cors()).get('/auth/:token', async (req, res) => {
     const token = req.params.token
     jwt.verify(token, process.env.SECRET, async function (err, decoded) {
         if (decoded) {
