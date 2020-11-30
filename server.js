@@ -11,8 +11,19 @@ const mongodb = require('mongodb'); //MongoDB driver
 const cors = require('cors'); //middleware that can be used to enable CORS with various options
 app.proxy = true
 app.use(cookieParser())
-app.options('*', cors()) //(Enable All CORS Requests)
+// app.options('*', cors()) //(Enable All CORS Requests)
 // app.use(cors())
+var allowlist = ['https://password-reset-flow-ui.netlify.app/', 'https://password-reset-flow-ui.netlify.app/home.html','https://password-reset-flow-ui.netlify.app/newpassword.html','https://password-reset-flow-ui.netlify.app/resetpassword.html','https://password-reset-flow-ui.netlify.app/signup.html']
+var corsOptionsDelegate = function (req, callback) {
+  var corsOptions;
+  if (allowlist.indexOf(req.header('Origin')) !== -1) {
+    corsOptions = { origin: true , credentials: true} // reflect (enable) the requested origin in the CORS response
+  } else {
+    corsOptions = { origin: false , credentials: true} // disable CORS for this request
+  }
+  callback(null, corsOptions) // callback expects two parameters: error and options
+}
+
 app.use(cors({
     origin: true,
     credentials: true
@@ -58,7 +69,7 @@ app.get("/", (req, res) => {
 
 
 //Endpoint to register the user
-app.post('/register', async (req, res) => {
+app.post('/register',cors(corsOptionsDelegate), async (req, res) => {
     let {
         email,
         password
@@ -96,7 +107,7 @@ app.post('/register', async (req, res) => {
 
 
 //End point for checking the credentials for loginging in
-app.post("/login", async (req, res) => {
+app.post("/login",cors(corsOptionsDelegate), async (req, res) => {
     const {
         email,
         password
@@ -150,7 +161,7 @@ app.post("/login", async (req, res) => {
 
 
 //Endpoint for resetting password
-app.post("/resetpassword", async (req, res) => {
+app.post("/resetpassword", cors(corsOptionsDelegate), async (req, res) => {
     const {
         email
     } = req.body //email from client
@@ -213,7 +224,7 @@ app.post("/resetpassword", async (req, res) => {
 
 
 //End point to verify the token
-app.get('/auth/:token', async (req, res) => {
+app.get('/auth/:token', cors(corsOptionsDelegate), async (req, res) => {
     const token = req.params.token
     jwt.verify(token, process.env.SECRET, async function (err, decoded) {
         if (decoded) {
@@ -247,7 +258,7 @@ app.get('/auth/:token', async (req, res) => {
 })
 
 //Endpoint to verify the token and senting new password
-app.post('/passwordreset', async (req, res) => {
+app.post('/passwordreset',cors(corsOptionsDelegate),  async (req, res) => {
     const {
         password,
         email
@@ -301,13 +312,8 @@ app.post('/passwordreset', async (req, res) => {
     })
 })
 
-const corsOptions = {
-    origin: 'https://password-reset-flow-ui.netlify.app/home.html',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
 
-
-app.get('/checklogin',cors(corsOptions), function (req, res) {
+app.get('/checklogin', cors(corsOptionsDelegate),  function (req, res) {
     const cooked = req.cookies
     console.log(cooked.jwt)
     jwt.verify(cooked.jwt, process.env.SECRET, function (err, decoded) {
@@ -330,7 +336,7 @@ app.get('/checklogin',cors(corsOptions), function (req, res) {
     });
 });
 
-app.get("/logout",cors(corsOptions), (req, res) => {
+app.get("/logout", cors(corsOptionsDelegate),  (req, res) => {
     res.clearCookie('jwt').json({
         type_: 'success',
         message: 'Logging Out...'
