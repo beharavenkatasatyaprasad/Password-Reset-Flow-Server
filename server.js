@@ -15,19 +15,19 @@ app.use(cookieParser())
 // app.use(cors())
 var allowlist = ['https://password-reset-flow-ui.netlify.app/', 'https://password-reset-flow-ui.netlify.app/home.html','https://password-reset-flow-ui.netlify.app/newpassword.html','https://password-reset-flow-ui.netlify.app/resetpassword.html','https://password-reset-flow-ui.netlify.app/signup.html']
 var corsOptionsDelegate = function (req, callback) {
-  var corsOptions;
-  if (allowlist.indexOf(req.header('Origin')) !== -1) {
+var corsOptions;
+if (allowlist.indexOf(req.header('Origin')) !== -1) {
     corsOptions = { origin: true , credentials: true} // reflect (enable) the requested origin in the CORS response
-  } else {
+} else {
     corsOptions = { origin: false , credentials: true} // disable CORS for this request
-  }
-  callback(null, corsOptions) // callback expects two parameters: error and options
+}
+    callback(null, corsOptions) // callback expects two parameters: error and options
 }
 
-app.use(cors({
-    origin: true,
-    credentials: true
-}));
+// app.use(cors({
+//     origin: true,
+//     credentials: true
+// }));
 
 // app.use(function (req, res, next) {
 //     res.header("Access-Control-Allow-Origin", "*");
@@ -141,7 +141,7 @@ app.post("/login",cors(corsOptionsDelegate), async (req, res) => {
                         iat: Date.now()
                     }, process.env.SECRET); //*assign token
                     res.cookie('jwt', token, {
-                        maxAge: 1000000,
+                        maxAge: 900000000,
                         httpOnly: true,
                         secure: true
                     }).json({
